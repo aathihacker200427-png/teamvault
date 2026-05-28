@@ -1,0 +1,89 @@
+# TeamVault - Render.com Blueprint
+# Deploy on Render: push this file to your repo and import as Blueprint.
+# Developed by Strucureo - https://strucureo.com
+
+databases:
+  - name: teamvault-db
+    databaseName: teamvault
+    user: teamvault
+    plan: free   # change to "starter" / "standard" for production
+    postgresMajorVersion: "16"
+
+services:
+  # ============================================================
+  # Backend (Rust + Axum) - Web Service with WebSocket support
+  # ============================================================
+  - type: web
+    name: teamvault-backend
+    runtime: docker
+    rootDir: ./backend
+    dockerfilePath: ./Dockerfile
+    plan: starter   # free tier sleeps after 15 min idle
+    healthCheckPath: /health
+    autoDeploy: true
+    disk:
+      name: uploads
+      mountPath: /app/uploads
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: teamvault-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION_HOURS
+        value: "24"
+      - key: CORS_ORIGIN
+        sync: false   # set this to your frontend URL after first deploy
+      - key: RUST_LOG
+        value: info
+      - key: SFU_URL
+        value: http://teamvault-sfu:8080
+      - key: SFU_SECRET
+        generateValue: true
+
+  # ============================================================
+  # SFU (Go) - Private Service for group call signalling
+  # ============================================================
+  - type: pserv
+    name: teamvault-sfu
+    runtime: docker
+    rootDir: ./sfu
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    envVars:
+      - key: SFU_HTTP_PORT
+        value: "8080"
+      - key: SFU_SECRET
+        fromService:
+          type: web
+          name: teamvault-backend
+          envVarKey: SFU_SECRET
+
+  # ============================================================
+  # Frontend (React + Vite) - Static Site (free, CDN-hosted)
+  # ============================================================
+  - type: web
+    name: teamvault-frontend
+    runtime: static
+    rootDir: ./frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: true
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    envVars:
+      # Set after first deploy (or in dashboard) to point at your backend.
+      # e.g. VITE_API_URL=https://teamvault-backend-abcd.onrender.com/api/v1
+      #      VITE_WS_URL=wss://teamvault-backend-abcd.onrender.com/api/v1/ws
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_WS_URL
+        sync: false

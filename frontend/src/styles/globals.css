@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark theme (default) */
+:root {
+  --color-brand: #5865f2;
+  --color-brand-hover: #4752c4;
+
+  --color-bg-primary: #313338;
+  --color-bg-secondary: #2b2d31;
+  --color-bg-tertiary: #1e1f22;
+  --color-bg-hover: #35373c;
+  --color-bg-active: #404249;
+
+  --color-text-primary: #f2f3f5;
+  --color-text-secondary: #b5bac1;
+  --color-text-muted: #949ba4;
+  --color-text-link: #00a8fc;
+
+  --color-border: #3f4147;
+  --color-border-light: #4e505a;
+
+  --color-success: #23a55a;
+  --color-warning: #f0b232;
+  --color-danger: #f23f43;
+
+  --color-status-online: #23a55a;
+  --color-status-idle: #f0b232;
+  --color-status-dnd: #f23f43;
+  --color-status-offline: #80848e;
+
+  color-scheme: dark;
+}
+
+/* Light theme */
+.light {
+  --color-brand: #5865f2;
+  --color-brand-hover: #4752c4;
+
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f6f8;
+  --color-bg-tertiary: #ebedef;
+  --color-bg-hover: #e7e9ec;
+  --color-bg-active: #d8dade;
+
+  --color-text-primary: #060607;
+  --color-text-secondary: #4e5058;
+  --color-text-muted: #6b7077;
+  --color-text-link: #0067e0;
+
+  --color-border: #d4d7dc;
+  --color-border-light: #b9bcc1;
+
+  --color-success: #248046;
+  --color-warning: #c47e00;
+  --color-danger: #d83c3e;
+
+  --color-status-online: #248046;
+  --color-status-idle: #c47e00;
+  --color-status-dnd: #d83c3e;
+  --color-status-offline: #82858b;
+
+  color-scheme: light;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+input, button, textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-tertiary);
+  border-radius: 3px;
+}
+.light ::-webkit-scrollbar-thumb { background: var(--color-border); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-border-light); }
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in { animation: slide-in 0.2s ease-out; }
