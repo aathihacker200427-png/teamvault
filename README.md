@@ -123,6 +123,14 @@ CORS_ORIGIN=http://localhost
 3. **Add TLS** by editing `nginx/conf.d/default.conf` to listen on 443 and reference your certs
 4. Or put **Caddy / Cloudflare** in front of port 8080 for automatic HTTPS
 
+### Deploy on Heroku (backend) + Vercel (frontend)
+
+Split deployment: Rust backend on Heroku, React frontend on Vercel.
+
+See **[DEPLOY-HEROKU-VERCEL.md](./DEPLOY-HEROKU-VERCEL.md)** for full instructions.
+
+> ⚠️ Heroku has no persistent disk — file uploads will be lost on restart. Use Render for the backend if you need persistent uploads.
+
 ### Deploy on Render.com (no server required)
 
 TeamVault includes a `render.yaml` Blueprint for one-click deployment to [Render](https://render.com).
