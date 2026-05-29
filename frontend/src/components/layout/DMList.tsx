@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { dmApi } from '../../api/directMessages'
 import { useWorkspaceStore } from '../../stores/workspaceStore'
+import { useAuthStore } from '../../stores/authStore'
 import { usePresenceStore } from '../../stores/presenceStore'
 import { useChatStore } from '../../stores/chatStore'
 import { Plus, UserPlus } from 'lucide-react'
@@ -13,6 +14,13 @@ export default function DMList({ onNewDm }: Props) {
   const { statuses } = usePresenceStore()
   const { unreadCounts } = useChatStore()
 
+  // Deduplicate conversations with same participants
+  const currentUserId = useAuthStore.getState().user?.id
+  const uniqueConversations = conversations?.filter((conv, idx, arr) => {
+    const otherId = conv.participants.find(p => p.user_id !== currentUserId)?.user_id
+    return idx === arr.findIndex(c => c.participants.find(p => p.user_id !== currentUserId)?.user_id === otherId)
+  })
+
   return (
     <div className="px-2 py-2">
       <div className="flex items-center justify-between px-2 mb-1 group">
@@ -21,17 +29,17 @@ export default function DMList({ onNewDm }: Props) {
           <Plus size={14} />
         </button>
       </div>
-      {(!conversations || conversations.length === 0) ? (
+      {(!uniqueConversations || uniqueConversations.length === 0) ? (
         <button onClick={onNewDm} className="w-full px-3 py-3 rounded text-sm text-text-muted hover:bg-bg-hover hover:text-text-secondary text-left transition-colors flex items-center gap-2">
           <UserPlus size={16} className="shrink-0" />
           <span>Start a conversation</span>
         </button>
       ) : (
         <div className="space-y-px">
-          {conversations.map((conv) => {
-            const otherUser = conv.participants[0]
+          {uniqueConversations.map((conv) => {
+            const otherUser = conv.participants.find(p => p.user_id !== currentUserId) || conv.participants[0]
             const name = conv.is_group
-              ? conv.participants.map((p) => p.display_name).join(', ')
+              ? conv.participants.filter(p => p.user_id !== currentUserId).map((p) => p.display_name).join(', ')
               : otherUser?.display_name || 'Unknown'
             const isActive = activeDm?.id === conv.id
             const isOnline = otherUser ? statuses[otherUser.user_id] === 'online' : false
